@@ -38,6 +38,9 @@ const server = http.createServer(async (req, res) => {
 
     res.setHeader("Content-Type", "application/json");
 
+    // =========================
+    // HOME
+    // =========================
     if (req.url === "/") {
 
         const dbConnected = await checkDatabase();
@@ -53,6 +56,9 @@ const server = http.createServer(async (req, res) => {
             databaseConnected: dbConnected
         }));
 
+    // =========================
+    // HEALTH CHECK
+    // =========================
     } else if (req.url === "/health") {
 
         const dbConnected = await checkDatabase();
@@ -69,6 +75,9 @@ const server = http.createServer(async (req, res) => {
             databaseConnected: dbConnected
         }));
 
+    // =========================
+    // CUSTOMER SEARCH
+    // =========================
     } else if (req.url.startsWith("/customers")) {
 
         try {
@@ -81,14 +90,23 @@ const server = http.createServer(async (req, res) => {
             });
 
             const url = new URL(req.url, `http://localhost:${PORT}`);
+
             const search = url.searchParams.get("search");
 
             let query = "SELECT id, name, email FROM customers";
+
             let params = [];
 
+            // Case-insensitive customer search
             if (search) {
-                query += " WHERE name LIKE ? OR email LIKE ?";
-                params = [`%${search}%`, `%${search}%`];
+
+                query +=
+                    " WHERE LOWER(name) LIKE LOWER(?) OR LOWER(email) LIKE LOWER(?)";
+
+                params = [
+                    `%${search}%`,
+                    `%${search}%`
+                ];
             }
 
             const [rows] = await connection.query(query, params);
@@ -113,6 +131,9 @@ const server = http.createServer(async (req, res) => {
             }));
         }
 
+    // =========================
+    // VERSION
+    // =========================
     } else if (req.url === "/version") {
 
         res.writeHead(200);
@@ -123,6 +144,9 @@ const server = http.createServer(async (req, res) => {
             environment: ENVIRONMENT
         }));
 
+    // =========================
+    // INVALID ENDPOINT
+    // =========================
     } else {
 
         res.writeHead(404);
@@ -133,6 +157,9 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
+// =========================
+// START SERVER
+// =========================
 server.listen(PORT, () => {
 
     console.log("------------------------------------");
