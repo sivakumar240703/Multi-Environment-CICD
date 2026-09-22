@@ -1,0 +1,12 @@
+{
+  "name": "customer-app",
+  "version": "1.0.0",
+  "description": "Multi-environment customer application for CI/CD assessment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.14.3"
+  }
+}

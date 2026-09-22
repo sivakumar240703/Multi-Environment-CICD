@@ -1,0 +1,160 @@
+services:
+
+  # =========================
+  # DEV DATABASE
+  # =========================
+  customer-db-dev:
+    image: mysql:8.0
+    container_name: customer-db-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: devroot123
+      MYSQL_DATABASE: customerdb_dev
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass123
+    volumes:
+      - customer-db-dev-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - customer-dev-net
+
+  # =========================
+  # DEV APPLICATION
+  # =========================
+  customer-app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: customer-app:1.0.0
+    container_name: customer-app-dev
+    restart: unless-stopped
+    depends_on:
+      - customer-db-dev
+    environment:
+      PORT: 8080
+      ENVIRONMENT: DEV
+      APP_VERSION: 1.0.0
+      DB_HOST: customer-db-dev
+      DB_NAME: customerdb_dev
+      DB_USER: devuser
+      DB_PASSWORD: devpass123
+    ports:
+      - "8081:8080"
+    networks:
+      - customer-dev-net
+
+  # =========================
+  # UAT DATABASE
+  # =========================
+  customer-db-uat:
+    image: mysql:8.0
+    container_name: customer-db-uat
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: uatroot123
+      MYSQL_DATABASE: customerdb_uat
+      MYSQL_USER: uatuser
+      MYSQL_PASSWORD: uatpass123
+    volumes:
+      - customer-db-uat-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - customer-uat-net
+
+  # =========================
+  # UAT APPLICATION
+  # =========================
+  customer-app-uat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: customer-app:1.0.0
+    container_name: customer-app-uat
+    restart: unless-stopped
+    depends_on:
+      - customer-db-uat
+    environment:
+      PORT: 8080
+      ENVIRONMENT: UAT
+      APP_VERSION: 1.0.0
+      DB_HOST: customer-db-uat
+      DB_NAME: customerdb_uat
+      DB_USER: uatuser
+      DB_PASSWORD: uatpass123
+    ports:
+      - "8082:8080"
+    networks:
+      - customer-uat-net
+
+  # =========================
+  # PROD DATABASE
+  # =========================
+  customer-db-prod:
+    image: mysql:8.0
+    container_name: customer-db-prod
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: prodroot123
+      MYSQL_DATABASE: customerdb_prod
+      MYSQL_USER: produser
+      MYSQL_PASSWORD: prodpass123
+    volumes:
+      - customer-db-prod-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - customer-prod-net
+
+  # =========================
+  # PROD APPLICATION
+  # =========================
+  customer-app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: customer-app:1.0.0
+    container_name: customer-app-prod
+    restart: unless-stopped
+    depends_on:
+      - customer-db-prod
+    environment:
+      PORT: 8080
+      ENVIRONMENT: PRODUCTION
+      APP_VERSION: 1.0.0
+      DB_HOST: customer-db-prod
+      DB_NAME: customerdb_prod
+      DB_USER: produser
+      DB_PASSWORD: prodpass123
+    ports:
+      - "8083:8080"
+    networks:
+      - customer-prod-net
+
+
+# =========================
+# PERSISTENT VOLUMES
+# =========================
+volumes:
+
+  customer-db-dev-data:
+    name: customer-db-dev-data
+
+  customer-db-uat-data:
+    name: customer-db-uat-data
+
+  customer-db-prod-data:
+    name: customer-db-prod-data
+
+
+# =========================
+# ISOLATED NETWORKS
+# =========================
+networks:
+
+  customer-dev-net:
+    name: customer-dev-net
+
+  customer-uat-net:
+    name: customer-uat-net
+
+  customer-prod-net:
+    name: customer-prod-net
