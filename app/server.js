@@ -69,7 +69,7 @@ const server = http.createServer(async (req, res) => {
             databaseConnected: dbConnected
         }));
 
-    } else if (req.url === "/customers") {
+    } else if (req.url.startsWith("/customers")) {
 
         try {
 
@@ -80,9 +80,18 @@ const server = http.createServer(async (req, res) => {
                 database: DB_NAME
             });
 
-            const [rows] = await connection.query(
-                "SELECT id, name, email FROM customers"
-            );
+            const url = new URL(req.url, `http://localhost:${PORT}`);
+            const search = url.searchParams.get("search");
+
+            let query = "SELECT id, name, email FROM customers";
+            let params = [];
+
+            if (search) {
+                query += " WHERE name LIKE ? OR email LIKE ?";
+                params = [`%${search}%`, `%${search}%`];
+            }
+
+            const [rows] = await connection.query(query, params);
 
             await connection.end();
 
@@ -90,6 +99,7 @@ const server = http.createServer(async (req, res) => {
 
             res.end(JSON.stringify({
                 environment: ENVIRONMENT,
+                search: search || null,
                 customers: rows
             }));
 
