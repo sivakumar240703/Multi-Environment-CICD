@@ -118,6 +118,7 @@ const server = http.createServer(async (req, res) => {
             res.end(JSON.stringify({
                 environment: ENVIRONMENT,
                 search: search || null,
+                resultCount: rows.length,
                 customers: rows
             }));
 
