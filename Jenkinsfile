@@ -262,7 +262,7 @@ pipeline {
                     echo DOCKER COMPOSE VERSION
                     echo ========================================
 
-                    docker compose version
+                    docker-compose version
 
                     if errorlevel 1 (
                         echo ERROR: Docker Compose is not available.
@@ -344,7 +344,7 @@ pipeline {
                     echo.
                     echo Starting Docker services...
 
-                    docker compose up -d --build ${env.DB_CONTAINER} ${env.APP_CONTAINER}
+                    docker-compose up -d --build ${env.DB_CONTAINER} ${env.APP_CONTAINER}
 
                     if errorlevel 1 (
                         echo ERROR: Docker deployment failed.
@@ -526,3 +526,4 @@ pipeline {
         }
     }
 }
+
